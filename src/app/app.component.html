@@ -1,49 +1,75 @@
-<div class="min-h-screen bg-teal-100 flex items-center justify-center">
-    <div class="bg-white rounded-lg shadow-xl p-8 grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-4xl">
-      <!-- Left Section -->
-      <div class="space-y-6">
-        <!-- Bill Input -->
-        <div>
-          <label class="block text-gray-600 mb-2">Bill</label>
-          <input type="number" placeholder="0" class="w-full bg-gray-100 rounded-lg p-3 text-right text-lg outline-none">
-        </div>
-  
-        <!-- Tip Selection -->
-        <div>
-          <label class="block text-gray-600 mb-2">Select Tip %</label>
-          <div class="grid grid-cols-3 gap-4">
-            <button class="bg-teal-900 text-white py-2 rounded-lg">5%</button>
-            <button class="bg-teal-900 text-white py-2 rounded-lg">10%</button>
-            <button class="bg-teal-900 text-white py-2 rounded-lg">15%</button>
-            <button class="bg-teal-900 text-white py-2 rounded-lg">25%</button>
-            <button class="bg-teal-900 text-white py-2 rounded-lg">50%</button>
-            <input type="number" placeholder="Custom" class="bg-gray-100 rounded-lg p-2 text-center text-lg outline-none">
-          </div>
-        </div>
-  
-        <!-- Number of People Input -->
-        <div>
-          <label class="block text-gray-600 mb-2">Number of People</label>
-          <input type="number" placeholder="0" class="w-full bg-gray-100 rounded-lg p-3 text-right text-lg outline-none">
+<div class="min-h-screen bg-teal-100 flex flex-col items-center justify-center">
+  <div class="text-center mb-5">
+    <h1 class="text-4xl font-bold text-gray-600 tracking-[0.5em]">SPLI</h1>
+    <h1 class="text-4xl font-bold text-gray-600 tracking-[0.5em]">TTER</h1>
+  </div>
+  <div class="bg-white rounded-lg shadow-xl p-8 grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-4xl">
+
+    <div class="space-y-6" [formGroup]="tipForm">
+      <div>
+        <label class="block text-gray-600 mb-2">Bill</label>
+        <input type="number" formControlName="billAmount" placeholder="Enter Bill Amount"
+          class="w-full bg-gray-100 rounded-lg p-3 text-right text-lg outline-none">
+        @if (invalid && tipForm.get('billAmount')?.hasError('required')) {
+        <small class="text-red-500">Bill is required.</small>
+        }
+        @if (invalid && tipForm.get('billAmount')?.hasError('min')) {
+        <small class="text-red-500">Must be a valid amount!</small>
+        }
+
+      </div>
+      <div>
+        <label class="block text-gray-600 mb-2">Select Tip %</label>
+        <div class="grid grid-cols-3 gap-4">
+          @for(tip of tipPercentages; track $index) {
+          <button class="bg-teal-900 text-white py-2 rounded-lg"
+            [ngClass]="{'bg-teal-300' : selectedTipPercentage === tip}" (click)="calculateTipAndTotal(tip)">
+            {{ tip }}%
+          </button>
+          }
+          <button type="button" class="bg-gray-100 rounded-lg p-2 text-center text-lg outline"
+            (click)="onCustomButtonClick()">Custom Tip </button>
         </div>
       </div>
-  
-      <!-- Right Section -->
-      <div class="bg-teal-900 text-white rounded-lg p-8 flex flex-col justify-between">
-        <div class="space-y-6">
-          <!-- Tip Amount -->
-          <div class="flex justify-between">
-            <span>Tip Amount / person</span>
-            <span class="text-3xl">$0.00</span>
-          </div>
-          <!-- Total Amount -->
-          <div class="flex justify-between">
-            <span>Total / person</span>
-            <span class="text-3xl">$0.00</span>
-          </div>
-        </div>
-        <button class="bg-teal-700 py-2 mt-8 text-center rounded-lg w-full text-gray-200">RESET</button>
+      <div>
+        @if (showCustomTipInput) {
+        <label class="block text-gray-600 mb-4">Custom Tip Percentage</label>
+        <input type="number" formControlName="customTipPercentage" placeholder="0"
+          class="w-full bg-gray-100 rounded-lg p-3 text-right text-lg outline-none">
+        @if (invalidCustom && tipForm.get('customTipPercentage')?.hasError('required')) {
+        <small class="text-red-500">Custom Tip is required.</small>
+        }
+        @if (invalidCustom && tipForm.get('customTipPercentage')?.hasError('min')) {
+        <small class="text-red-500">Must be a valid count!</small>
+        }
+        }
+        <label class="block text-gray-600 mb-2">Number of People</label>
+        <input type="number" formControlName="noOfPeople" placeholder="0"
+          class="w-full bg-gray-100 rounded-lg p-3 text-right text-lg outline-none">
+        @if (invalid && tipForm.get('noOfPeople')?.hasError('required')) {
+        <small class="text-red-500">No of People is required.</small>
+        }
+        @if (invalid && tipForm.get('noOfPeople')?.hasError('min')) {
+        <small class="text-red-500">Must be a valid count!</small>
+        }
       </div>
     </div>
+    <div class="bg-teal-900 text-white rounded-lg p-8 flex flex-col justify-between">
+      <div class="space-y-6">
+        <div class="flex justify-between">
+          <span>Tip Amount <div class="block text-gray-100"> <small>/ person</small></div></span>
+
+          <span class="text-3xl">{{ tipPerPerson | currency:'INR':'symbol' }}</span>
+
+        </div>
+        <div class="flex justify-between">
+          <span>Tota<div class="block"> <small>/ person</small></div></span>
+
+          <span class="text-3xl">{{totalPerPerson | currency:'INR':'symbol'}}</span>
+        </div>
+      </div>
+      <button class="bg-teal-700 py-2 mt-8 text-center rounded-lg w-full text-gray-200"
+        (click)="resetTotal()">RESET</button>
+    </div>
   </div>
-  
+</div>
